@@ -10,14 +10,15 @@ services:
     volumes:
       - ./postgres-keycloak-data:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - "5432:5432"
+    network_mode: "host"
   keycloak:
     image: quay.io/keycloak/keycloak:21.1
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://keycloak_db:5432/keycloak_db
+      KC_DB_URL: jdbc:postgresql://localhost:5432/keycloak_db
       KC_DB_USERNAME: keycloak_user
       KC_DB_PASSWORD: keycloak_password
     command: 
@@ -29,6 +30,7 @@ services:
       - "8080:8080"
     depends_on:
       - keycloak_db
+    network_mode: "host"
   frontend:
     build:
       context: ./frontend
@@ -40,7 +42,7 @@ services:
       REACT_APP_KEYCLOAK_URL: http://localhost:8080
       REACT_APP_KEYCLOAK_REALM: reports-realm
       REACT_APP_KEYCLOAK_CLIENT_ID: reports-frontend-pkce
-  
+    network_mode: "host"
   backend:
     build:
       context: ./api
@@ -48,6 +50,7 @@ services:
     ports:
      - 8000:8000
     environment:
-      BACKEND_API_KEYCLOAK_URL: http://keycloak:8080/
+      BACKEND_API_KEYCLOAK_URL: http://localhost:8080/
       BACKEND_API_KEYCLOAK_REALM: reports-realm
       BACKEND_API_KEYCLOAK_CLIENT_ID: reports-api
+    network_mode: "host"
